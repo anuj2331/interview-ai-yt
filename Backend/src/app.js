@@ -10,18 +10,19 @@ app.use(cors({
     origin: function (origin, callback) {
         if (!origin) return callback(null, true);
         const allowed = [
-            process.env.FRONTEND_URL,
+            ...(process.env.FRONTEND_URL || "").split(","),
             "http://localhost:5173",
             "http://localhost:3000"
-        ].filter(Boolean);
-        
-        if (allowed.some(item => origin === item || origin.endsWith('.vercel.app'))) {
-            return callback(null, true);
-        }
-        return callback(null, true);
+        ].map(item => item.trim().replace(/\/$/, "")).filter(Boolean);
+
+        return callback(null, allowed.includes(origin));
     },
     credentials: true
 }))
+
+app.get("/healthz", (req, res) => {
+    res.status(200).json({ status: "ok" })
+})
 
 /* require all the routes here */
 const authRouter = require("./routes/auth.routes")

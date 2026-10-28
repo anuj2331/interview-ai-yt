@@ -4,15 +4,16 @@ const { zodToJsonSchema } = require("zod-to-json-schema")
 const puppeteer = require("puppeteer")
 
 const ai = new GoogleGenAI({
-    apiKey: process.env.GOOGLE_GENAI_API_KEY
+    apiKey: process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY
 })
 
 const FALLBACK_MODELS = [
-    "gemini-3.6-flash",
-    "gemini-3.5-flash",
+    "gemini-flash-lite-latest",
     "gemini-3.5-flash-lite",
-    "gemini-3.1-flash-lite",
-    "gemini-flash-lite-latest"
+    "gemini-3.5-flash",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash",
+    "gemini-3.8-flash"
 ]
 
 async function generateContentWithFallback(prompt, schema) {
@@ -36,15 +37,20 @@ async function generateContentWithFallback(prompt, schema) {
             lastError = error
 
             const isQuotaOrBusy = 
+                error.status === 404 ||
                 error.status === 429 ||
                 error.status === 503 ||
                 error.status === "RESOURCE_EXHAUSTED" ||
                 error.status === "UNAVAILABLE" ||
+                error.status === "NOT_FOUND" ||
                 (error.message && (
+                    error.message.includes("404") ||
                     error.message.includes("429") ||
                     error.message.includes("503") ||
                     error.message.includes("RESOURCE_EXHAUSTED") ||
                     error.message.includes("UNAVAILABLE") ||
+                    error.message.includes("NOT_FOUND") ||
+                    error.message.includes("no longer available") ||
                     error.message.includes("Quota exceeded") ||
                     error.message.includes("high demand")
                 ))
