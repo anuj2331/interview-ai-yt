@@ -20,6 +20,13 @@ app.use(cors({
     credentials: true
 }))
 
+app.get("/", (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        message: "Interview AI Backend API is running! Access the frontend via its Render Static Site URL."
+    })
+})
+
 app.get("/healthz", (req, res) => {
     res.status(200).json({ status: "ok" })
 })
