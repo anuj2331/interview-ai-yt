@@ -1,4 +1,7 @@
 services:
+  # ===================================================
+  # Backend Web Service (Node.js + Express + MongoDB)
+  # ===================================================
   - type: web
     name: interview-ai-backend
     runtime: node
@@ -9,6 +12,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PUPPETEER_CACHE_DIR
+        value: /opt/render/.cache/puppeteer
       - key: MONGO_URI
         sync: false
       - key: JWT_SECRET
@@ -16,4 +21,21 @@ services:
       - key: GOOGLE_GENAI_API_KEY
         sync: false
       - key: FRONTEND_URL
+        sync: false
+
+  # ===================================================
+  # Frontend Static Site (React + Vite SPA)
+  # ===================================================
+  - type: web
+    name: interview-ai-frontend
+    runtime: static
+    rootDir: Frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
         sync: false
